@@ -24,23 +24,23 @@ type Article struct {
 // Articles is an array of Article
 type Articles []Article
 
-// Datastore cleanly separates the concerns of reading and writing to the database
-// type Datastore interface {
-// 	Mutations
-// 	Queries
-// }
-
 // Client wraps a pool of Sqlite connections.
 type Client struct {
 	*sql.DB
 }
 
-var articlesCache = Articles{}
-
 func getAllArticles(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Endpoint hit: All Articles endpoint")
-	json.NewEncoder(w).Encode(articlesCache)
+	dbClient := NewDBClient("./articles.db")
+	defer dbClient.Close()
+	articleList, err := dbClient.ScanArticles()
+	if err != nil {
+		log.Printf("Error while scaning all articles: %v\n", err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(articleList)
 }
 
 func getArticle(w http.ResponseWriter, r *http.Request) {
@@ -81,7 +81,6 @@ func createArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("Created article %d\n", articleID)
-	articlesCache = append(articlesCache, article)
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(`{"success": "created article"}`))
 }
@@ -142,6 +141,7 @@ func (c *Client) QueryArticle(id int64) (*Article, error) {
 
 	statement, _ := c.Prepare("SELECT * FROM articles WHERE id=$1")
 	articleRow := statement.QueryRow(id)
+
 	var articleID int64
 	var title string
 	var desc string
@@ -154,4 +154,25 @@ func (c *Client) QueryArticle(id int64) (*Article, error) {
 		return nil, err
 	}
 	return &a, nil
+}
+
+// ScanArticles returns all articles from the database
+func (c *Client) ScanArticles() (Articles, error) {
+	rows, err := c.Query("SELECT * FROM articles")
+	if err != nil {
+		return nil, err
+	}
+
+	var articleList Articles
+	var articleID int64
+	var title string
+	var desc string
+	var content string
+	var url string
+	for rows.Next() {
+		rows.Scan(&articleID, &title, &desc, &content, &url)
+		articleList = append(articleList, Article{Title: title, Desc: desc, Content: content, URL: url})
+	}
+
+	return articleList, nil
 }
