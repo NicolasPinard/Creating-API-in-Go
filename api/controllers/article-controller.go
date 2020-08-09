@@ -35,6 +35,8 @@ func (a *ArticleController) GetAllArticles(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	json.NewEncoder(w).Encode(articleList)
 }
 
@@ -53,6 +55,8 @@ func (a *ArticleController) GetArticle(w http.ResponseWriter, r *http.Request) {
 	article, _ := a.articleRepo.QueryArticle(keyID)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	json.NewEncoder(w).Encode(article)
 }
 

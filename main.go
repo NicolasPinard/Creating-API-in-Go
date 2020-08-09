@@ -25,7 +25,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	db := InitDB("./articles.db")
+	db := InitDB("./portfolio.db")
 	defer db.Close()
 	articleController := controllers.ArticleController{}
 	articleController.Init(db)
@@ -37,6 +37,11 @@ func main() {
 	r.HandleFunc("/articles", articleController.GetAllArticles).Methods(http.MethodGet)
 	r.HandleFunc("/articles", articleController.CreateArticle).Methods(http.MethodPost)
 	r.HandleFunc("/articles/{id}", articleController.GetArticle).Methods(http.MethodGet)
+	r.HandleFunc("/experiences", experienceController.GetAllExperiences).Methods(http.MethodGet)
+	r.HandleFunc("/experiences", experienceController.CreateExperience).Methods(http.MethodPost)
+	r.HandleFunc("/experiences/{id}", experienceController.GetExperience).Methods(http.MethodGet)
+
+	// TODO: Add some GraphQL endpoints https://medium.com/@chrischuck35/how-to-build-a-simple-web-app-in-react-graphql-go-e71c79beb1d
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 

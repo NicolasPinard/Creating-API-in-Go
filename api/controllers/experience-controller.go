@@ -34,6 +34,8 @@ func (e *ExperienceController) GetAllExperiences(w http.ResponseWriter, r *http.
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	json.NewEncoder(w).Encode(experienceList)
 }
 
@@ -52,6 +54,8 @@ func (e *ExperienceController) GetExperience(w http.ResponseWriter, r *http.Requ
 	experience, _ := e.experienceRepo.QueryExperience(keyID)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	json.NewEncoder(w).Encode(experience)
 }
 
