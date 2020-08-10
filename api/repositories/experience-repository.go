@@ -17,7 +17,7 @@ type ExperienceRepository struct {
 func (repo *ExperienceRepository) Init(db *sql.DB) {
 	repo.db = db
 
-	statement, err := repo.db.Prepare("CREATE TABLE IF NOT EXISTS experience (id INTEGER PRIMARY KEY, title TEXT, responsabilities TEXT, achievements TEXT)")
+	statement, err := repo.db.Prepare("CREATE TABLE IF NOT EXISTS experience (id INTEGER PRIMARY KEY, title TEXT, responsabilities TEXT, achievements TEXT, date TEXT)")
 	if err != nil {
 		log.Fatalf("Unable to create table experience: %v", err)
 	}
@@ -27,8 +27,8 @@ func (repo *ExperienceRepository) Init(db *sql.DB) {
 // InsertExperience persists the experience passed to the database client
 func (repo *ExperienceRepository) InsertExperience(e *models.Experience) (int64, error) {
 
-	statement, _ := repo.db.Prepare("INSERT INTO experience (title, responsabilities, achievements) VALUES (?, ?, ?)")
-	execResult, err := statement.Exec(e.Title, e.Responsabilities, e.Achievements)
+	statement, _ := repo.db.Prepare("INSERT INTO experience (title, responsabilities, achievements, date) VALUES (?, ?, ?, ?)")
+	execResult, err := statement.Exec(e.Title, e.Responsabilities, e.Achievements, e.Date)
 	if err != nil {
 		log.Printf("Got an error while trying to insert experience: %v", err)
 		return 0, err
@@ -55,12 +55,13 @@ func (repo *ExperienceRepository) QueryExperience(e int64) (*models.Experience, 
 	var title string
 	var responsabilities string
 	var achievements string
-	err = experienceRow.Scan(&experienceID, &title, &responsabilities, &achievements)
+	var date string
+	err = experienceRow.Scan(&experienceID, &title, &responsabilities, &achievements, &date)
 	if err != nil {
 		log.Printf("Unable to find experience with id %d\n", e)
 		return nil, err
 	}
-	exp := models.Experience{ID: experienceID, Title: title, Responsabilities: responsabilities, Achievements: achievements}
+	exp := models.Experience{ID: experienceID, Title: title, Responsabilities: responsabilities, Achievements: achievements, Date: date}
 	return &exp, nil
 }
 
@@ -77,9 +78,10 @@ func (repo *ExperienceRepository) ScanExperiences() (models.Experiences, error) 
 	var title string
 	var responsabilities string
 	var achievements string
+	var date string
 	for rows.Next() {
-		rows.Scan(&experienceID, &title, &responsabilities, &achievements)
-		experienceList = append(experienceList, models.Experience{ID: experienceID, Title: title, Responsabilities: responsabilities, Achievements: achievements})
+		rows.Scan(&experienceID, &title, &responsabilities, &achievements, &date)
+		experienceList = append(experienceList, models.Experience{ID: experienceID, Title: title, Responsabilities: responsabilities, Achievements: achievements, Date: date})
 	}
 
 	return experienceList, nil

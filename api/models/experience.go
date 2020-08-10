@@ -6,6 +6,7 @@ type Experience struct {
 	Title            string `json:"Title"`
 	Responsabilities string `json:"Responsabilities"`
 	Achievements     string `json:"Achievements"`
+	Date			 string `json:"Date"`
 }
 
 // Experiences is an array of Experience
