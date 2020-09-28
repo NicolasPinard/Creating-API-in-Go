@@ -4,7 +4,7 @@ package models
 type Experience struct {
 	ID               int64  `json:"ID"`
 	Title            string `json:"Title"`
-	Responsabilities string `json:"Responsabilities"`
+	Responsibilities string `json:"Responsibilities"`
 	Achievements     string `json:"Achievements"`
 	Date			 string `json:"Date"`
 }

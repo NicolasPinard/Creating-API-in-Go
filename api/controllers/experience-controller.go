@@ -67,6 +67,7 @@ func (e *ExperienceController) CreateExperience(w http.ResponseWriter, r *http.R
 	var exp models.Experience
 	err := decoder.Decode(&exp)
 	if err != nil {
+		fmt.Printf("Got error %v while trying to decode object\n", err)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"error": "body not parsed"}`))
 		return
